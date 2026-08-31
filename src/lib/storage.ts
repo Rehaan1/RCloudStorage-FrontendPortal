@@ -16,8 +16,22 @@ export async function listObjects(): Promise<StorageObject[]> {
   return (await response.text()).split("\n").map((key) => key.trim()).filter(Boolean).sort((a, b) => a.localeCompare(b)).map((key) => ({ key }));
 }
 
-export async function uploadObject(key: string, file: File) {
-  await request(endpoint(key), { method: "PUT", body: file, headers: { "content-type": file.type || "application/octet-stream" } });
+export function uploadObject(key: string, file: File, onProgress?: (percentage: number) => void) {
+  return new Promise<void>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("PUT", endpoint(key));
+    xhr.setRequestHeader("content-type", file.type || "application/octet-stream");
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) onProgress?.(Math.round((event.loaded / event.total) * 100));
+    };
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) { onProgress?.(100); resolve(); return; }
+      reject(new Error(xhr.responseText || `Upload failed (${xhr.status})`));
+    };
+    xhr.onerror = () => reject(new Error("Network error while uploading the file."));
+    xhr.onabort = () => reject(new Error("Upload was cancelled."));
+    xhr.send(file);
+  });
 }
 
 export async function deleteObject(key: string) {

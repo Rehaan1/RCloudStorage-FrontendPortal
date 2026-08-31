@@ -2,6 +2,12 @@
 
 Mobile-first Next.js UI for the RCloudStorage **coordinator**. It provides a file library with upload, download, delete, search, drag-and-drop, and touch-friendly controls.
 
+## Preview
+
+![RCloudStorage portal dashboard showing search, upload, drag-and-drop, and file actions](public/assets/portal-dashboard-preview.png)
+
+The portal is designed mobile-first: its file list and upload controls remain touch-friendly on small screens, while the wider dashboard expands into a full file-management workspace.
+
 ## Run locally
 
 1. Start the RCloudStorage coordinator on `http://localhost:9000` (see its README).

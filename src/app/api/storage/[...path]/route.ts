@@ -21,6 +21,41 @@ async function proxy(request: NextRequest, context: { params: Promise<{ path: st
       duplex: "half",
       cache: "no-store",
     });
+
+    if (request.method === "GET" && path.length === 1 && path[0] === "objects") {
+      const text = await response.text();
+      const keys = text.split("\n").map(k => k.trim()).filter(Boolean);
+
+      const objectsWithMetadata = await Promise.all(
+        keys.map(async (key) => {
+          if (key.endsWith("/")) return { key }; // Virtual folder
+
+          try {
+            const headResponse = await fetch(`${coordinatorUrl()}/objects/${key.split("/").map(encodeURIComponent).join("/")}`, {
+              method: "HEAD",
+              cache: "no-store"
+            });
+
+            if (!headResponse.ok) return { key };
+
+            return {
+              key,
+              size: Number(headResponse.headers.get("content-length")) || undefined,
+              type: headResponse.headers.get("content-type") || undefined,
+              modifiedAt: headResponse.headers.get("last-modified") || undefined
+            };
+          } catch {
+            return { key };
+          }
+        })
+      );
+
+      return Response.json(objectsWithMetadata, {
+        status: 200,
+        headers: { "content-type": "application/json" }
+      });
+    }
+
     const responseHeaders = new Headers();
     for (const name of ["content-type", "content-length", "content-disposition"]) {
       const value = response.headers.get(name);

@@ -51,9 +51,11 @@ If the coordinator cannot be reached, it returns HTTP `502` and a useful JSON er
 
 On initial load, the portal calls `GET /api/storage/objects`, reads the newline-delimited keys, sorts them alphabetically, and renders them as files. Search is entirely client-side and filters the currently loaded keys; it does not issue a backend prefix query.
 
-### Uploads and progress
+### Folders, uploads, and progress
 
-The portal uploads each selected file to a key matching the file's basename. A browser `XMLHttpRequest` is used for uploads because standard `fetch` does not expose upload-progress events. For multiple files, uploads run sequentially and the displayed percentage is weighted by total bytes, rather than treating a large video and a small text file as equal work.
+Folders are represented by slash-delimited object keys. Creating an otherwise-empty folder stores a zero-byte `{folder}/.rcloud-folder` marker; the portal hides that marker and derives folder rows from object-key prefixes. This works with the coordinator's existing object API and also makes folders with uploaded files visible without requiring a marker.
+
+The current breadcrumb path is prepended to every upload key. Relative paths supplied by a browser file-selection flow are preserved, so nested selections retain their structure. A browser `XMLHttpRequest` is used because standard `fetch` does not expose upload-progress events. Each file has an independent queue entry with its own progress, cancel control, retry action, and clear success/network/server/cancelled state.
 
 ### Downloads and deletion
 

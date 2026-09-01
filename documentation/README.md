@@ -13,8 +13,9 @@ The portal is a single-user, mobile-first web interface for the existing RCloudS
 
 - Browse object keys
 - Search the loaded file list
-- Upload one or more files with byte-weighted progress
+- Browse paths and create folders
+- Upload one or more files into the active folder, with per-file progress, cancellation, and retry
 - Download a file
 - Delete a file after confirmation
 
-Authentication, user accounts, folders, file metadata, previews, and public share links are not available in the current Go backend, so they are not simulated in the UI.
+Authentication, user accounts, file metadata, previews, and public share links are not available in the current Go backend, so they are not simulated in the UI. Folders are implemented client-side on top of slash-delimited coordinator object keys and zero-byte folder markers.

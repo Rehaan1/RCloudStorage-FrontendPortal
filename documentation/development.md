@@ -45,7 +45,8 @@ The portal reflects the backend as it exists today:
 - No authentication or authorization: restrict network access until this exists.
 - No share-link endpoint: the UI intentionally does not offer sharing.
 - No object metadata in the list endpoint: file size, modification date, and previews cannot be shown reliably.
-- Object upload key is the selected filename: choosing a duplicate name replaces the existing logical object.
+- Object upload keys are the active folder path plus the selected filename (or browser-provided relative path). Choosing the same full key replaces the existing logical object.
+- Empty folders are represented by a `.rcloud-folder` zero-byte marker object; deleting a folder is intentionally not exposed because it would require a recursive delete confirmation and coordinator support for safe batch semantics.
 - Search filters the loaded list only; it does not query the server by prefix.
 - The coordinator's metadata durability is currently separate from replicated object bytes, as documented in the backend project.
 
